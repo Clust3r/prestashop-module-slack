@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2016-2017 EEWEE
  *
@@ -23,7 +24,6 @@
  *  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *  International Registered Trademark & Property of PrestaShop SA
  */
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -31,21 +31,20 @@ if (!defined('_PS_VERSION_')) {
 use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
 
 //require_once('libs/slack/xxx.php');
-require_once _PS_MODULE_DIR_.'eewee_slack/classes/EeweeslackLogModel.php';
-require_once _PS_MODULE_DIR_.'eewee_slack/classes/EeweeslackSlackModel.php';
+require_once _PS_MODULE_DIR_ . 'eewee_slack/classes/EeweeslackLogModel.php';
+require_once _PS_MODULE_DIR_ . 'eewee_slack/classes/EeweeslackSlackModel.php';
 
 /**
  * Class Eewee_Slack
  */
-class Eewee_Slack extends Module implements WidgetInterface
-{
+class Eewee_Slack extends Module implements WidgetInterface {
+
     /**
      * @var string
      */
     protected $html = '';
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->name = 'eewee_slack';
         $this->author = 'eewee';
         $this->tab = 'front_office_features';
@@ -69,21 +68,19 @@ class Eewee_Slack extends Module implements WidgetInterface
      * @return bool
      * @throws PrestaShopException
      */
-    public function install()
-    {
+    public function install() {
         require_once(dirname(__FILE__) . '/sql/install.php');
 
         if (Shop::isFeatureActive())
             Shop::setContext(Shop::CONTEXT_ALL);
 
         if (!parent::install() ||
-            !$this->registerHook('actionValidateOrder') ||
-            !$this->registerHook('actionCustomerAccountAdd') ||
-
-            !Configuration::updateValue('EEWEE_SLACK_WEBHOOK_URL', '') ||
-            !Configuration::updateValue('EEWEE_SLACK_CHANNEL_DEFAULT', '') ||
-            !Configuration::updateValue('EEWEE_SLACK_NOTIF_ORDER_NEW', 1) ||
-            !Configuration::updateValue('EEWEE_SLACK_NOTIF_CUSTOMER_NEW', 1)
+                !$this->registerHook('actionValidateOrder') ||
+                !$this->registerHook('actionCustomerAccountAdd') ||
+                !Configuration::updateValue('EEWEE_SLACK_WEBHOOK_URL', '') ||
+                !Configuration::updateValue('EEWEE_SLACK_CHANNEL_DEFAULT', '') ||
+                !Configuration::updateValue('EEWEE_SLACK_NOTIF_ORDER_NEW', 1) ||
+                !Configuration::updateValue('EEWEE_SLACK_NOTIF_CUSTOMER_NEW', 1)
         ) {
             return false;
         }
@@ -94,15 +91,14 @@ class Eewee_Slack extends Module implements WidgetInterface
      * Uninstall
      * @return bool
      */
-    public function uninstall()
-    {
+    public function uninstall() {
         require_once(dirname(__FILE__) . '/sql/uninstall.php');
 
         if (!parent::uninstall() ||
-            !Configuration::deleteByName('EEWEE_SLACK_WEBHOOK_URL') ||
-            !Configuration::deleteByName('EEWEE_SLACK_CHANNEL_DEFAULT') ||
-            !Configuration::deleteByName('EEWEE_SLACK_NOTIF_ORDER_NEW') ||
-            !Configuration::deleteByName('EEWEE_SLACK_NOTIF_CUSTOMER_NEW')
+                !Configuration::deleteByName('EEWEE_SLACK_WEBHOOK_URL') ||
+                !Configuration::deleteByName('EEWEE_SLACK_CHANNEL_DEFAULT') ||
+                !Configuration::deleteByName('EEWEE_SLACK_NOTIF_ORDER_NEW') ||
+                !Configuration::deleteByName('EEWEE_SLACK_NOTIF_CUSTOMER_NEW')
         ) {
             return false;
         }
@@ -113,8 +109,7 @@ class Eewee_Slack extends Module implements WidgetInterface
      * Get Slack webhook url
      * @return bool|url $res
      */
-    static public function getSlackWebhookUrl()
-    {
+    static public function getSlackWebhookUrl() {
         $res = Configuration::get('EEWEE_SLACK_WEBHOOK_URL');
         if (isset($res) && !empty($res)) {
             return $res;
@@ -126,8 +121,7 @@ class Eewee_Slack extends Module implements WidgetInterface
      * Get Slack channel default
      * @return bool|string $res
      */
-    static public function getSlackChannelDefault()
-    {
+    static public function getSlackChannelDefault() {
         $res = Configuration::get('EEWEE_SLACK_CHANNEL_DEFAULT');
         if (isset($res) && !empty($res)) {
             return $res;
@@ -139,8 +133,7 @@ class Eewee_Slack extends Module implements WidgetInterface
      * Content
      * @return string
      */
-    public function getContent()
-    {
+    public function getContent() {
         // INIT
         $output = null;
 
@@ -177,10 +170,9 @@ class Eewee_Slack extends Module implements WidgetInterface
      * More : http://doc.prestashop.com/display/PS16/Using+the+HelperForm+class#UsingtheHelperFormclass-Selector
      * @return string
      */
-    public function displayForm()
-    {
+    public function displayForm() {
         // Get default language
-        $default_lang = (int)Configuration::get('PS_LANG_DEFAULT');
+        $default_lang = (int) Configuration::get('PS_LANG_DEFAULT');
 
         // Init Fields form array
         $fields_form[0]['form'] = array(
@@ -267,7 +259,7 @@ class Eewee_Slack extends Module implements WidgetInterface
             'save' => array(
                 'desc' => $this->l('Save'),
                 'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
-                    '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                '&token=' . Tools::getAdminTokenLite('AdminModules'),
             ),
             'back' => array(
                 'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
@@ -276,7 +268,7 @@ class Eewee_Slack extends Module implements WidgetInterface
         );
         // fields_value 01
         $helper->tpl_vars = array(
-            'fields_value' => $this->getConfigFieldsValues(),           // Load current value
+            'fields_value' => $this->getConfigFieldsValues(), // Load current value
             'languages' => $this->context->controller->getLanguages(),
             'id_language' => $this->context->language->id
         );
@@ -288,8 +280,7 @@ class Eewee_Slack extends Module implements WidgetInterface
      * Load values
      * @return array
      */
-    public function getConfigFieldsValues()
-    {
+    public function getConfigFieldsValues() {
         return array(
             'EEWEE_SLACK_WEBHOOK_URL' => Tools::getValue('EEWEE_SLACK_WEBHOOK_URL', Configuration::get('EEWEE_SLACK_WEBHOOK_URL')),
             'EEWEE_SLACK_CHANNEL_DEFAULT' => Tools::getValue('EEWEE_SLACK_CHANNEL_DEFAULT', Configuration::get('EEWEE_SLACK_CHANNEL_DEFAULT')),
@@ -302,21 +293,39 @@ class Eewee_Slack extends Module implements WidgetInterface
      * hookActionValidateOrder
      * @param $params
      */
-    public function hookActionValidateOrder($params)
-    {
+    public function hookActionValidateOrder($params) {
         if (Configuration::get('EEWEE_SLACK_NOTIF_ORDER_NEW')) {
             // INIT
-            $customer           = $params['customer']->firstname . ' ' . $params['customer']->lastname;
-            $order_reference    = $params['order']->reference;
-            $message            = $customer . ', Ref : ' . $order_reference;
-	        $channel = Tools::getValue('EEWEE_SLACK_CHANNEL_DEFAULT', Configuration::get('EEWEE_SLACK_CHANNEL_DEFAULT'));
-	        if (!isset($channel) || empty($channel)) {
-		        $channel = "prestashop";
-	        }
+            $customer = $params['customer']->firstname . ' ' . $params['customer']->lastname;
+            $order_reference = $params['order']->reference;
+            $Message = "";
+            $TxtProduit = "";
+            $NbrProd = 0;
+            foreach ($params['order'] as $text => $value) {
+                if ($text == "product_list") {
+                    foreach ($value as $produit => $value2) {
+                        $NbrProd++;
+                        $TxtProduit .= " - Produit: " . $value2['name'] . "(ID: " . $value2['id_product'] . " - REF: " . $value2['reference'] . ") x " . $value2['cart_quantity'] . " ";
+                    }
+                }
+            }
+
+            $TotalProduit = round($params['order']->total_products_wt * $params['order']->conversion_rate, 2);
+            $TotalFDP = round($params['order']->total_shipping * $params['order']->conversion_rate, 2);
+            $Total = $TotalProduit + $TotalFDP;
+
+
+            $message = $customer . ', Ref : ' . $order_reference . "- Paid: " . $Total . "€ via " . $params['order']->payment . " (Product: " . $TotalProduit . "€ - Shipping: " . $TotalFDP . "€) || " . $TxtProduit;
+
+
+            $channel = Tools::getValue('EEWEE_SLACK_CHANNEL_DEFAULT', Configuration::get('EEWEE_SLACK_CHANNEL_DEFAULT'));
+            if (!isset($channel) || empty($channel)) {
+                $channel = "prestashop";
+            }
 
             // SLACK SEND
             $m_slack = new EeweeslackSlackModel();
-            $m_slack->send($message, "Order", $channel);
+            $m_slack->send($message, "New order", $channel);
         }
     }
 
@@ -324,46 +333,46 @@ class Eewee_Slack extends Module implements WidgetInterface
      * hookActionCustomerAccountAdd
      * @param $params
      */
-    public function hookActionCustomerAccountAdd($params)
-    {
+    public function hookActionCustomerAccountAdd($params) {
         if (Configuration::get('EEWEE_SLACK_NOTIF_CUSTOMER_NEW')) {
             // INIT
-            $customer = $params['newCustomer']->firstname.' '.$params['newCustomer']->lastname.', '.$params['newCustomer']->email;
+            $customer = $params['newCustomer']->firstname . ' ' . $params['newCustomer']->lastname . ', ' . $params['newCustomer']->email;
             if (isset($params['newCustomer']->company) && !empty($params['newCustomer']->company)) {
-                $customer .= ' ('.$params['newCustomer']->company.')';
+                $customer .= ' (' . $params['newCustomer']->company . ')';
             }
+            // Add ID client
+            $customer .= $customer . ' (ID: ' . $params['newCustomer']->id . ')';
+
             $message = $customer;
             $channel = Tools::getValue('EEWEE_SLACK_CHANNEL_DEFAULT', Configuration::get('EEWEE_SLACK_CHANNEL_DEFAULT'));
             if (!isset($channel) || empty($channel)) {
-	            $channel = "prestashop";
+                $channel = "prestashop";
             }
 
             // SLACK SEND
             $m_slack = new EeweeslackSlackModel();
-            $m_slack->send($message, "Customer", $channel);
+            $m_slack->send($message, "Nouveau client", $channel);
         }
     }
 
-	/**
-	 * renderWidget
-	 * @param $hookName
-	 * @param array $params
-	 * @return mixed
-	 */
-    public function renderWidget($hookName, array $params)
-    {
-
+    /**
+     * renderWidget
+     * @param $hookName
+     * @param array $params
+     * @return mixed
+     */
+    public function renderWidget($hookName, array $params) {
+        
     }
 
-	/**
-	 * getWidgetVariables
-	 * @param $hookName
-	 * @param array $params
-	 * @return array
-	 */
-    public function getWidgetVariables($hookName, array $params)
-    {
-
+    /**
+     * getWidgetVariables
+     * @param $hookName
+     * @param array $params
+     * @return array
+     */
+    public function getWidgetVariables($hookName, array $params) {
+        
     }
 
 }
